@@ -1,0 +1,43 @@
+﻿<ul class="nav nav-pills center">
+	<li><a href="/tweets/mytweets">Mina tweets</a></li>
+	<li class="active"><a href="/tweets/myflow">Mitt flöde</a></li>
+	<li><a href="/tweets/myprofile">Min profil</a></li>
+</ul>
+
+<br /><br />
+
+<div id="tweetspace">
+
+<?php
+$this->jQuery()->addOnLoad("");
+
+if($this->tweetflow != null)
+{
+	$list = new Application_Model_ListTweets();
+	
+	foreach($this->tweetflow as $tweet)
+	{
+		$userinfo = $this->userinfo[$tweet->userid];
+		
+		echo '<div class="reply">';
+		echo '<div class="well tweetbox">';
+		echo '<img class="avatar" src="/Image/thumbnail?image='.substr($userinfo->userimage, 1, strlen($userinfo->userimage)).'" />';
+		echo '<div class="mainTweet">';
+		echo '<strong>'.$userinfo->firstname.' '.$userinfo->lastname.'</strong> @'.$userinfo->username.'<br />'.$tweet->message.'<br /><br />';
+		
+		$list->timeSince($tweet->timestamp);
+		/*$timeSinceTweet = time() - $tweet->timestamp;
+		if($timeSinceTweet < 60)
+			echo $timeSinceTweet.' sekunder sedan';
+		else if($timeSinceTweet < 3600)
+			echo floor($timeSinceTweet / 60).' minuter sedan';
+		else if($timeSinceTweet < 86400)
+			echo floor($timeSinceTweet / 3600).' timmar sedan';*/
+		
+		echo '</div></div></div>';
+	}
+}
+
+?>
+
+</div>

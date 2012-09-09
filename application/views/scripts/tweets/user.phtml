@@ -1,0 +1,87 @@
+﻿<?php if(!isset($_POST['follow'])){ ?>
+<?php
+if(Zend_Auth::getInstance()->hasIdentity())
+{
+	echo '<ul class="nav nav-pills center">';
+	echo '<li><a href="/tweets/mytweets">Mina tweets</a></li>';
+	echo '<li><a href="/tweets/myflow">Mitt flöde</a></li>';
+	echo '<li><a href="/tweets/myprofile">Min profil</a></li>';
+	echo '</ul>';
+}
+?>
+<div id="tweetspace">
+	<div class="well">
+		<?php
+			echo '<img class="rightside" src="/Image/thumbnail?image='.substr($this->userinfo->userimage, 1, strlen($this->userinfo->userimage)).'" />'; 
+		?>
+		<h2><?php echo $this->userinfo->firstname.' '.$this->userinfo->lastname ?></h2>
+		<div class="username"><?php echo '@'.$this->userinfo->username ?></div>
+		<br />
+		<p class="description"><?php echo $this->userinfo->description ?></p>
+		<?php echo $this->userinfo->location.' <br /><a href="http://'.$this->userinfo->website.'">'.$this->userinfo->website.'</a>' ?>
+		<div class="rightside">
+			<?php
+				if(Zend_Auth::getInstance()->hasIdentity())
+				{
+					echo '<input id="followbutton" type="button" class="btn" value="Följ" /><br />';
+					$followers = new Application_Model_Followers();
+					$userid = Zend_Auth::getInstance()->getIdentity()->userid;
+			
+					if($followers->isFollowing($userid, $this->userinfo->userid))
+					{
+						echo '<div id="following">Följer</div>';
+					}
+					else
+					{
+						echo '<div id="following">Följer inte</div>';
+					}
+				}
+			?>
+		</div>
+			
+		
+	</div>
+
+	<?php
+	$this->jQuery()->addOnLoad("");
+	
+	foreach($this->tweetsList as $tweet)
+	{
+		$userinfo = $this->userinfo;
+		
+		echo '<div class="well tweetbox">';
+		echo '<img class="avatar" src="/Image/thumbnail?image='.substr($userinfo->userimage, 1, strlen($userinfo->userimage)).'" />';
+		echo '<div class="mainTweet">';
+		echo '<strong>'.$userinfo->firstname.' '.$userinfo->lastname.'</strong> @'.$userinfo->username.'<br />'.$tweet->message.'<br /><br />';
+		echo ($tweet->timestamp);
+		echo '</div>';
+		echo '</div>';
+	}
+
+	?>
+	
+</div>
+
+<?php } ?>
+
+<div id="feedback"></div>
+
+<?php
+if(isset($_POST['follow']))
+{
+	$followers = new Application_Model_Followers();
+	$userid = Zend_Auth::getInstance()->getIdentity()->userid;
+	
+	if($_POST['follow'] == 'true')
+	{
+		$followers->followUser($userid, $this->userinfo->userid);
+		//echo 'Följd';
+	}
+	else if($_POST['follow'] == 'false')
+	{
+		$followers->unfollowUser($userid, $this->userinfo->userid);
+		echo 'Följer inte längre';
+	}
+}
+?>
+

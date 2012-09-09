@@ -1,0 +1,100 @@
+﻿<h3>Registrera ny användare</h3>
+<br />
+<form class="well registerbox" id="registerform" action="/authentication/register" method="POST" enctype="multipart/form-data">
+	<div class="span4">
+		<strong>Obligatoriska uppgifter</strong><br /><br />
+		Användarnamn: <br /><input type="text" name="username" maxlength="32" <?php echo 'value="'.@$_POST['username'].'"' ?> /> <br />
+		Lösenord: <br /><input type="password" name="password" maxlength="40"  /> <br />
+		Upprepa lösenord: <br /><input type="password" name="repeatpassword" maxlength="40" /> <br />
+		Email: <br /><input type="email" name="email" maxlength="40" <?php echo 'value="'.@$_POST['email'].'"' ?> /> <br />
+		Förnamn: <br /><input type="text" name="firstname" maxlength="32" <?php echo 'value="'.@$_POST['firstname'].'"' ?> /> <br />
+		Efternamn: <br /><input type="text" name="lastname" maxlength="40" <?php echo 'value="'.@$_POST['lastname'].'"' ?> /> <br />
+	</div>
+	<div>
+		<strong>Frivilliga uppgifter</strong><br /><br />
+		Avatar: <br /><input type="file" name="avatar"><br />
+		Beskrivning: <br /><textarea name="description" maxlength="300" rows="5"><?php echo @$_POST['description'] ?></textarea> <br />
+		Plats: <br /><input type="text" name="location" maxlength="50" <?php echo 'value="'.@$_POST['location'].'"' ?> /> <br />
+		Website: <br /><input type="text" name="website" maxlength="50" <?php echo 'value="'.@$_POST['website'].'"' ?> /> <br />
+	</div>
+	<br /><br /><br /><br />
+	<div class="center">
+		<input class="btn btn-primary" type="submit" value="Registrera" /><br />
+	</div>
+</form>
+
+
+<?php
+if(isset($_POST['username']) && isset($_POST['password']) && isset($_POST['repeatpassword']) &&
+   isset($_POST['email']) && isset($_POST['firstname']) && isset($_POST['lastname']))
+{
+	$username 		= mysql_real_escape_string($_POST['username']);
+	$password 		= mysql_real_escape_string($_POST['password']);
+	$repeatpassword = mysql_real_escape_string($_POST['repeatpassword']);
+	$email 			= mysql_real_escape_string($_POST['email']);
+	$firstname 		= mysql_real_escape_string($_POST['firstname']);
+	$lastname 		= mysql_real_escape_string($_POST['lastname']);
+	$description 	= mysql_real_escape_string($_POST['description']);
+	$location 		= mysql_real_escape_string($_POST['location']);
+	$website 		= mysql_real_escape_string($_POST['website']);
+	
+	if(!empty($username) && !empty($password) && !empty($repeatpassword) && !empty($email) &&
+	   !empty($firstname) && !empty($lastname))
+	{
+	
+		$userinfo = new Application_Model_GetUserInfo();
+		if($userinfo->checkIfExists($username))
+		{
+			echo 'En användare med det namnet finns redan.';
+		}
+		else
+		{
+			if($password != $repeatpassword)
+			{
+				echo 'Lösenorden måste vara lika i båda fälten.';
+			}
+			else
+			{
+				$filepath = '/avatars/default-avatar.png';
+				
+				$name = $_FILES['avatar']['name'];
+				$tmp_name = $_FILES['avatar']['tmp_name'];
+				if(!empty($name))
+				{
+					if(!mkdir('avatars/'.$username, 0, true))
+					{
+						die('Fel med att skapa mappen: avatars/'.$username);
+					}
+					$filepath = 'avatars/'.$username.'/'.$name;
+					
+					move_uploaded_file($tmp_name, $filepath);
+				}
+				
+				$info = array(
+							'username' 		=> $username,
+							'password' 		=> md5($password),
+							'email'			=> $email,
+							'firstname' 	=> $firstname,
+							'lastname' 		=> $lastname,
+							'userimage' 	=> '/'.$filepath,
+							'description' 	=> $description,
+							'location'		=> $location,
+							'website'		=> $website
+				);
+				
+				$accounts = new Application_Model_Accounts();
+				$accounts->registerUser($info);
+				
+				//$this->_redirect('/authentication/login');
+				echo 'Användare registrerad';
+			}
+		}
+	}
+	else
+	{
+		echo 'Alla obligatoriska fält måste fyllas i.';
+	}
+}
+
+
+?>

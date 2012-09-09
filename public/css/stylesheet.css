@@ -1,0 +1,120 @@
+﻿#tweetspace
+{
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#button
+{
+	display: false;
+}
+
+#tweetarea
+{
+	width: 50%;
+}
+
+#description
+{
+	
+}
+
+#following
+{
+	display: none;
+}
+
+.invisible
+{
+	display: none;
+}
+
+.lightgrey
+{
+	background-color: #EBEBEB;
+}
+
+.white
+{
+	background-color: #FFFFFF;
+}
+
+.leftbox
+{
+	position: relative;
+	float: left;
+	width: 20%;
+}
+
+.mainTweet
+{
+	margin-left: 10%;
+}
+
+.reply
+{
+	padding: 0;
+}
+
+.tweetsabove
+{
+	width: 70%;
+	display: none;
+}
+
+.tweetsbelow
+{
+	width: 70%;
+	display: none;
+}
+
+.avatar
+{
+	float: left;
+}
+
+.rightside
+{
+	float: right;
+}
+
+.leftside
+{
+	float: left;
+}
+
+.username
+{
+	color: grey;
+	font-style: italic;
+	font-size: 16pt;
+}
+
+.description
+{
+	color: grey;
+	font-style: italic;
+}
+
+.registerbox
+{
+	width: 600px;
+}
+
+.center
+{
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.tweetbox
+{
+	
+}
+
+.replyform
+{
+	display: none;
+}

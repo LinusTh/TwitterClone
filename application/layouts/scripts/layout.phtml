@@ -1,0 +1,52 @@
+﻿<?php echo $this->doctype() ?>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8_swedish_ci"/>
+		<?php echo $this->headMeta(); ?>
+		<?php echo $this->headTitle(); ?>
+		<?php echo $this->headLink()->appendStylesheet('/css/bootstrap.css'); ?>
+		<?php echo $this->headLink()->appendStylesheet('/css/stylesheet.css'); ?>
+		<?php
+		//echo $this->jQuery();
+		
+		/*if($this->jQuery()->isEnabled())
+		{
+			//Jag måste kolla upp baseUrl...
+			$this->jQuery()->setLocalPath('/js/jquery/jquery.js');
+			
+			echo $this->jQuery();
+		}*/
+		
+		?>
+		<script type="text/javascript" src="/js/jquery/jquery.js"></script>
+		<script type="text/javascript" src="/js/tweets.js"></script>
+		<script type="text/javascript" src="/js/jquery.form.js"></script>
+	</head>
+	<body>
+		<div class="page-header">
+			<div id="header-logo">
+				<strong>Kviddevitter</strong>
+			</div>
+			<br />
+			<?php
+				if(Zend_Auth::getInstance()->hasIdentity())
+				{
+					echo '<a href="/authentication/logout">Logout</a>';
+				}
+				else
+				{
+					echo '<a href="/authentication/login">Logga in</a>';
+					echo ' <a href="/authentication/register">Registrera</a>';
+				}
+			?>
+			<div id="header-navigation" >
+			</div>
+		</div>
+		
+		<!-- Inuti content kommer det som controllern skickar att visas -->
+		<?php echo $this->layout()->content; ?>
+		
+		<script src="/js/bootstrap.js"></script>
+	</body>
+</html>

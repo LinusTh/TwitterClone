@@ -1,0 +1,120 @@
+﻿
+<?php
+$userObject = Zend_Auth::getInstance()->getIdentity();
+
+if(isset($_POST['password_old']) && isset($_POST['password_new']))
+{
+	if(!empty($_POST['password_old']) && !empty($_POST['password_old']))
+	{
+		$password_old = md5($_POST['password_old']);
+		$password_new = md5($_POST['password_new']);
+		
+		$user = new Application_Model_GetUserInfo();
+		
+		if($password_old != $user->getPassword($userObject->userid))
+		{
+			echo 'Fel lösenord';
+		}
+		else
+		{
+			$accounts = new Application_Model_Accounts();
+			$accounts->updateUser(array('password' => $password_new), $userObject->userid);
+		}
+	}
+}
+
+if(isset($_POST['email']))
+{
+	$email 			= mysql_real_escape_string($_POST['email']);
+	$description 	= mysql_real_escape_string($_POST['description']);
+	$location 		= mysql_real_escape_string($_POST['location']);
+	$website 		= mysql_real_escape_string($_POST['website']);
+	$userimage 		= $userObject->imagepath;
+	$username		= $userObject->username;
+	
+	$data = array();
+	//Ta reda på vilka fält som har ändrats
+	if($userObject->email != $email)
+	{
+		$data['email'] = $email;
+	}
+	if($userObject->description != $description)
+	{
+		$data['description'] = $description;
+	}
+	if($userObject->location != $location)
+	{
+		$data['location'] = $location;
+	}
+	if($userObject->website != $website)
+	{
+		$data['website'] = $website;
+	}
+	
+	$name = $_FILES['avatar']['name'];
+	$tmp_name = $_FILES['avatar']['tmp_name'];
+	if(!empty($name))
+	{
+		if(!@mkdir('avatars/'.$username, 0, true))
+		{
+			//Om mappen redan finns så måste vi ta bort den gamla bilden inuti
+			unlink(substr($userimage, 1, strlen($userimage)));
+		}
+		$userimage = 'avatars/'.$username.'/'.$name;
+		
+		move_uploaded_file($tmp_name, $userimage);
+	}
+	
+	if($userObject->imagepath != $userimage)
+	{
+		$data['userimage'] = '/'.$userimage;
+	}
+
+	if(count($data) > 0)
+	{
+		$accounts = new Application_Model_Accounts();
+		$accounts->updateUserInfo($data, $userObject->userid);
+		$getUserInfo = new Application_Model_GetUserInfo();
+		$this->userinfo = $getUserInfo->getUserinfo($userObject->userid);
+	}
+}
+?>
+
+<ul class="nav nav-pills center">
+	<li><a href="/tweets/mytweets">Mina tweets</a></li>
+	<li><a href="/tweets/myflow">Mitt flöde</a></li>
+	<li class="active"><a href="/tweets/myprofile">Min profil</a></li>
+</ul>
+
+<form class="well registerbox" id="updateform" action="/tweets/myprofile" method="POST" enctype="multipart/form-data">
+	<div class="center">
+		<strong>Användarnamn:</strong> <?php echo $this->userinfo->username?> <br />
+		<strong>Förnamn:</strong> <?php echo $this->userinfo->firstname ?> <br />
+		<strong>Efternamn:</strong> <?php echo $this->userinfo->lastname ?> <br /><br />
+		
+		<strong>Email:</strong><br /><input type="email" name="email" maxlength="40" <?php echo 'value="'.$this->email.'"' ?> /> <br />
+		<strong>Avatar:</strong><br />
+		
+		<?php //echo '<img class="avatar" src="'.Zend_Auth::getInstance()->getIdentity()->imagepath.'" /><br /><br /><br /><br /><br />'; ?>
+		
+		<input type="file" name="avatar"><br />
+		<strong>Beskrivning:</strong><br /><textarea name="description" maxlength="300" rows="5"><?php echo $this->userinfo->description ?></textarea> <br />
+		<strong>Plats:</strong><br /><input type="text" name="location" maxlength="50" <?php echo 'value="'.$this->userinfo->location.'"' ?> /> <br />
+		<strong>Website:</strong><br /><input type="text" name="website" maxlength="50" <?php echo 'value="'.$this->userinfo->website.'"' ?> /> <br />
+	</div>
+	<br /><br /><br />
+	<div>
+		<input class="btn btn-primary" type="submit" value="Spara" /><br />
+	</div>
+</form>
+
+
+<form class="well registerbox" id="passwordform" action="/tweets/myprofile" method="POST"">
+	<strong>Gammalt lösenord:</strong><br /><input type="password" name="password_old" maxlength="40" /><br />
+	<strong>Nytt Lösenord:</strong><br /><input type="password" name="password_new" maxlength="40" /> <br />
+	<br />
+	
+	<input class="btn btn-primary" type="submit" value="Ändra lösenord" /><br />
+	
+</form>
+

@@ -1,0 +1,135 @@
+<?php
+echo $this->jQuery();
+echo '<script type="text/javascript" src="/js/tweets.js"></script>';
+
+$tweetsShowing = 10;
+
+if($_SERVER["REQUEST_METHOD"] == "POST")
+{
+	$tweetsList = new Application_Model_ListTweets();
+	if(isset($_POST['message']) && isset($_POST['id']))
+	{
+		$message = $_POST['message'];
+		
+		if($_POST['id'] != "")
+			$replyid = $_POST['id'];
+		else
+			$replyid = null;
+		
+		$tweetsList->addTweet($message, $replyid);
+	}
+	
+	if(isset($_POST['tweets']))
+	{
+		$tweetsShowing = $_POST['tweets'];
+	}
+	
+	$userObject = Zend_Auth::getInstance()->getIdentity();
+	
+	$tweetsList = new Application_Model_ListTweets();
+	$tweetsList = $tweetsList->listTweets($userObject->userid, $tweetsShowing);
+	
+	$latestTweet = $tweetsList[0][0];
+	writeTweets($tweetsList[0], $this->allUsers, $tweetsShowing);
+}
+
+
+function writeTweets($tweetsList, $allUsers, $tweetsShowing)
+{
+	$list = new Application_Model_ListTweets();
+	
+	$userObject = Zend_Auth::getInstance()->getIdentity();
+	
+	$i = 0;
+	for($i = 0; $i < $tweetsShowing && $i < count($tweetsList); $i++)
+	{
+		//echo $i.'<br />';
+		
+		$tweet = $tweetsList[$i];
+		
+		echo '<div class="reply">';
+		
+		//Ta fram tweeten som det här är svar på om det finns någon
+		if($tweet->replyto != null)
+		{
+			$tweetAbove = $list->getTweetById($tweet->replyto);
+			$user = $allUsers[$tweetAbove->userid];
+			
+			echo '<div class="well tweetsabove">';
+			tweetContent($user, $tweetAbove, $list);
+			echo '<div class="form2"></div>';
+			echo '</div>';
+			
+		}
+		
+		//Huvud-Tweet
+		echo '<div class="well tweetbox">';
+		tweetContent($userObject, $tweet, $list);
+		echo '<div class="form2"></div>';
+		echo '</div>';
+		
+		
+		
+		//Svar
+		$tweetsBelow = $list->getReplies($tweet->tweetid);
+		if(count($tweetsBelow) > 0)
+		{
+			foreach($tweetsBelow as $reply)
+			{
+				$user = $allUsers[$reply->userid];
+				
+				echo '<div class="well tweetsbelow">';
+				tweetContent($user, $reply, $list);
+				echo '<div class="form2"></div>';
+				echo '</div>';
+				
+			}
+		}
+		
+		echo '</div>';
+	}
+	$tweetsShowing = $i;
+	
+	echo '<input id="moretweets" class="btn" type="button" value="Fler tweets" />';
+}
+
+
+function tweetContent($user, $tweet, $tweetsList)
+{
+	echo '<div class="clickableTweet">';
+	echo '<img class="avatar" src="/Image/thumbnail?image='.substr($user->userimage, 1, strlen($user->userimage)).'" />';
+	echo '<strong>'.$user->firstname.' '.$user->lastname.'</strong> @'.$user->username.'<br />'.$tweet->message.'<br /><br /><br />';
+	echo '<div class="invisible">'.$tweet->tweetid.'</div>';
+	$tweetsList->timeSince($tweet->timestamp);
+	echo '</div>';
+	echo '<div class="replylink"></div>';
+}
+
+
+
+/*function writeTweets($tweetsList, $tweetsShowing)
+{
+	$userObject = Zend_Auth::getInstance()->getIdentity();
+	
+	for($i = 0; $i < $tweetsShowing && $i < count($tweetsList); $i++)
+	{
+		$tweet = $tweetsList[$i];
+		
+		echo '<div class="reply">';
+		echo '<div class="well tweetbox">';
+		echo '<img class="avatar" src="/Image/thumbnail?image='.substr($userObject->imagepath, 1, strlen($userObject->imagepath)).'" />';
+		echo '<div class="mainTweet">';
+		echo '<strong>'.$userObject->firstname.' '.$userObject->lastname.'</strong> @'.$userObject->username.'<br />'.$tweet->message.'<br /><br /><br />';
+		
+		$timeSinceTweet = time() - $tweet->timestamp;
+		if($timeSinceTweet < 60)
+			echo $timeSinceTweet.' sekunder sedan';
+		else if($timeSinceTweet < 3600)
+			echo floor($timeSinceTweet / 60).' minuter sedan';
+		else if($timeSinceTweet < 86400)
+			echo floor($timeSinceTweet / 3600).' timmar sedan';
+		
+		echo '</div></div></div>';
+	}
+}*/
+?>
