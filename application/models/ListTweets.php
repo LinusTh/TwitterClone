@@ -37,7 +37,6 @@ class Application_Model_ListTweets
 		$userObject = Zend_Auth::getInstance()->getIdentity();
 		
 		$time = time();
-		//$time = date("y/m/d H:i:s", time()) ;
 		$message = mysql_real_escape_string($message); 
 		
 		$data = array(
@@ -92,7 +91,6 @@ class Application_Model_ListTweets
 			}
 		}
 		$endString = 'NEW';
-		//echo $sqlString;
 		
 		//Ta fram alla tweets som användarna man följer har gjort
 		$db = new Application_Model_DbTable_Tweets();
@@ -121,7 +119,7 @@ class Application_Model_ListTweets
 		$db = new Application_Model_DbTable_Tweets();
 		$selectTweets = $db->select();
 		$selectTweets->where('tweetid = '.$tweetid, 'NEW');
-		//echo $selectTweets;
+		
 		$tweetRows = $db->fetchAll($selectTweets);
 		
 		$tweet = $tweetRows[0];
@@ -163,7 +161,9 @@ class Application_Model_ListTweets
 			echo floor($timeSinceTweet / 3600).' timm';
 			if($timeSinceTweet > 7200)
 				echo 'ar';
-			echo 'e sedan';
+			else
+				echo 'e';
+			echo ' sedan';
 		}
 		else
 		{
@@ -180,6 +180,15 @@ class Application_Model_ListTweets
 		$selectUsers->where($sqlString, $endString);
 		
 		return $db->fetchAll($selectUsers);
+	}
+	
+	public function getUser($userid)
+	{
+		$db = new Application_Model_DbTable_Users();
+		$selectUsers = $db->select();
+		$selectUsers->where('userid = '.$userid, 'NEW');
+		
+		return $db->fetchAll($selectUsers)[0];
 	}
 
 }

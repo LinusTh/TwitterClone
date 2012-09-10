@@ -2,11 +2,6 @@
 
 class Application_Model_Followers
 {
-
-	public function getFollowedUsers($userid)
-	{
-		
-	}
 	
 	public function followUser($userid, $userToFollow)
 	{
@@ -14,7 +9,7 @@ class Application_Model_Followers
 		
 		$data = array(
 			'userid' 	=> $userid,
-			'following' 	=> $userToFollow
+			'following' => $userToFollow
 		);
 		
 		$db->insert($data);
@@ -27,7 +22,7 @@ class Application_Model_Followers
 		
 		$data = array(
 			'userid' 	=> $userid,
-			'following' 	=> $userToFollow
+			'following' => $userToFollow
 		);
 		
 		$db->delete($data);

@@ -12,11 +12,14 @@ if(Zend_Auth::getInstance()->hasIdentity())
 <div id="tweetspace">
 	<div class="well">
 		<?php
+			echo '<label id="userid" class="invisible">'.$this->userinfo->userid.'</label>';
 			echo '<img class="rightside" src="/Image/thumbnail?image='.substr($this->userinfo->userimage, 1, strlen($this->userinfo->userimage)).'" />'; 
 		?>
+		
 		<h2><?php echo $this->userinfo->firstname.' '.$this->userinfo->lastname ?></h2>
 		<div class="username"><?php echo '@'.$this->userinfo->username ?></div>
 		<br />
+		
 		<p class="description"><?php echo $this->userinfo->description ?></p>
 		<?php echo $this->userinfo->location.' <br /><a href="http://'.$this->userinfo->website.'">'.$this->userinfo->website.'</a>' ?>
 		<div class="rightside">
@@ -41,30 +44,91 @@ if(Zend_Auth::getInstance()->hasIdentity())
 			
 		
 	</div>
-
+	<div id="innertweets">
 	<?php
 	$this->jQuery()->addOnLoad("");
 	
-	foreach($this->tweetsList as $tweet)
-	{
-		$userinfo = $this->userinfo;
-		
-		echo '<div class="well tweetbox">';
-		echo '<img class="avatar" src="/Image/thumbnail?image='.substr($userinfo->userimage, 1, strlen($userinfo->userimage)).'" />';
-		echo '<div class="mainTweet">';
-		echo '<strong>'.$userinfo->firstname.' '.$userinfo->lastname.'</strong> @'.$userinfo->username.'<br />'.$tweet->message.'<br /><br />';
-		echo ($tweet->timestamp);
-		echo '</div>';
-		echo '</div>';
-	}
+	writeTweets($this->tweetsList, $this->userinfo, $this->allUsers);
 
 	?>
-	
+	</div>
+	<div id="loading"></div>
 </div>
 
 <?php } ?>
 
 <div id="feedback"></div>
+
+<?php	
+function writeTweets($tweetsList, $userinfo, $allUsers)
+{
+	$list = new Application_Model_ListTweets();
+
+	$tweetsShowing = 10;
+	
+	$i = 0;
+	for($i = 0; $i < $tweetsShowing && $i < count($tweetsList); $i++)
+	{
+		$tweet = $tweetsList[$i];
+		
+		echo '<div class="reply">';
+		
+		//Ta fram tweeten som det här är svar på om det finns någon
+		if($tweet->replyto != null)
+		{
+			$tweetAbove = $list->getTweetById($tweet->replyto);
+			$user = $allUsers[$tweetAbove->userid];
+			
+			echo '<div class="well tweetsabove">';
+			tweetContent($user, $tweetAbove, $list);
+			echo '<div class="form2"></div>';
+			echo '</div>';
+			
+		}
+		
+		//Huvud-Tweet
+		echo '<div class="well tweetbox">';
+		tweetContent($userinfo, $tweet, $list);
+		echo '<div class="form2"></div>';
+		echo '</div>';
+		
+		
+		
+		//Svar
+		$tweetsBelow = $list->getReplies($tweet->tweetid);
+		if(count($tweetsBelow) > 0)
+		{
+			foreach($tweetsBelow as $reply)
+			{
+				$user = $allUsers[$reply->userid];
+				
+				echo '<div class="well tweetsbelow">';
+				tweetContent($user, $reply, $list);
+				echo '<div class="form2"></div>';
+				echo '</div>';
+				
+			}
+		}
+		
+		echo '</div>';
+	}
+	$tweetsShowing = $i;
+	
+	echo '<input id="moretweets" class="btn" type="button" value="Fler tweets" />';
+}
+
+
+function tweetContent($user, $tweet, $tweetsList)
+{
+	echo '<div class="clickableTweet">';
+	echo '<img class="avatar" src="/Image/thumbnail?image='.substr($user->userimage, 1, strlen($user->userimage)).'" />';
+	echo '<strong>'.$user->firstname.' '.$user->lastname.'</strong> @'.$user->username.'<br />'.$tweet->message.'<br /><br /><br />';
+	echo '<div id="id" class="invisible">'.$tweet->tweetid.'</div>';
+	$tweetsList->timeSince($tweet->timestamp);
+	echo '</div>';
+	echo '<div class="replylink"></div>';
+}
+?>
 
 <?php
 if(isset($_POST['follow']))
@@ -75,7 +139,6 @@ if(isset($_POST['follow']))
 	if($_POST['follow'] == 'true')
 	{
 		$followers->followUser($userid, $this->userinfo->userid);
-		//echo 'Följd';
 	}
 	else if($_POST['follow'] == 'false')
 	{

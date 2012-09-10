@@ -1,4 +1,6 @@
-﻿<?php
+﻿<!-- Author: Linus Thorelli -->
+
+<?php
 
 class Application_Model_GetUserInfo
 {
@@ -26,7 +28,6 @@ class Application_Model_GetUserInfo
 		$selectUsers->where('username = "'.$username.'"', 'NEW');
 		
 		$rows = $db->fetchAll($selectUsers);
-		//$rows = $db->fetchAll('username = '.$username);
 		$user = $rows->current();
 		
 		if($user != null)
@@ -52,6 +53,5 @@ class Application_Model_GetUserInfo
 		$rows = $db->fetchAll('userid = '.$userid);
 		return $rows->current()->password;
 	}
-
 }
 

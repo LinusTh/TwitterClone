@@ -8,36 +8,84 @@
 
 <div id="tweetspace">
 
-<?php
-$this->jQuery()->addOnLoad("");
+<div id="innertweets">
+	<?php
+	$this->jQuery()->addOnLoad("");
 
-if($this->tweetflow != null)
-{
-	$list = new Application_Model_ListTweets();
-	
-	foreach($this->tweetflow as $tweet)
+
+	if($this->tweetflow != null)
 	{
-		$userinfo = $this->userinfo[$tweet->userid];
+		$list = new Application_Model_ListTweets();
+		$tweetsList = $this->tweetflow;
+		$allUsers = $this->allUsers;
 		
-		echo '<div class="reply">';
-		echo '<div class="well tweetbox">';
-		echo '<img class="avatar" src="/Image/thumbnail?image='.substr($userinfo->userimage, 1, strlen($userinfo->userimage)).'" />';
-		echo '<div class="mainTweet">';
-		echo '<strong>'.$userinfo->firstname.' '.$userinfo->lastname.'</strong> @'.$userinfo->username.'<br />'.$tweet->message.'<br /><br />';
+		$tweetsShowing = 10;
 		
-		$list->timeSince($tweet->timestamp);
-		/*$timeSinceTweet = time() - $tweet->timestamp;
-		if($timeSinceTweet < 60)
-			echo $timeSinceTweet.' sekunder sedan';
-		else if($timeSinceTweet < 3600)
-			echo floor($timeSinceTweet / 60).' minuter sedan';
-		else if($timeSinceTweet < 86400)
-			echo floor($timeSinceTweet / 3600).' timmar sedan';*/
+		$i = 0;
+		for($i = 0; $i < $tweetsShowing && $i < count($tweetsList); $i++)
+		{
+			$tweet = $tweetsList[$i];
+			$userinfo = $this->userinfo[$tweet->userid];
+			
+			echo '<div class="reply">';
+			
+			//Ta fram tweeten som det här är svar på om det finns någon
+			if($tweet->replyto != null)
+			{
+				$tweetAbove = $list->getTweetById($tweet->replyto);
+				$user = $allUsers[$tweetAbove->userid];
+				
+				echo '<div class="well tweetsabove">';
+				tweetContent($user, $tweetAbove, $list);
+				echo '<div class="form2"></div>';
+				echo '</div>';
+				
+			}
+			
+			//Huvud-Tweet
+			echo '<div class="well tweetbox">';
+			tweetContent($userinfo, $tweet, $list);
+			echo '<div class="form2"></div>';
+			echo '</div>';
+			
+			
+			//Svar
+			$tweetsBelow = $list->getReplies($tweet->tweetid);
+			if(count($tweetsBelow) > 0)
+			{
+				foreach($tweetsBelow as $reply)
+				{
+					$user = $allUsers[$reply->userid];
+					
+					echo '<div class="well tweetsbelow">';
+					tweetContent($user, $reply, $list);
+					echo '<div class="form2"></div>';
+					echo '</div>';
+				}
+			}
+			
+			echo '</div>';
+		}
+		$tweetsShowing = $i;
 		
-		echo '</div></div></div>';
+		echo '<input id="moretweets" class="btn" type="button" value="Fler tweets" />';
 	}
-}
+	?>
+	</div>
+	<div id="loading"></div>
 
-?>
+
+	<?php
+	function tweetContent($user, $tweet, $tweetsList)
+	{
+		echo '<div class="clickableTweet">';
+		echo '<img class="avatar" src="/Image/thumbnail?image='.substr($user->userimage, 1, strlen($user->userimage)).'" />';
+		echo '<strong>'.$user->firstname.' '.$user->lastname.'</strong> @'.$user->username.'<br />'.$tweet->message.'<br /><br /><br />';
+		echo '<div id="id" class="invisible">'.$tweet->tweetid.'</div>';
+		$tweetsList->timeSince($tweet->timestamp);
+		echo '</div>';
+		echo '<div class="replylink"></div>';
+	}
+	?>
 
 </div>

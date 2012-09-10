@@ -1,12 +1,18 @@
 <?php
+
+//Inkludera jquery-grejerna här eftersom layout är disabled
 echo $this->jQuery();
 echo '<script type="text/javascript" src="/js/tweets.js"></script>';
 
 $tweetsShowing = 10;
+$flow = null;
 
 if($_SERVER["REQUEST_METHOD"] == "POST")
 {
 	$tweetsList = new Application_Model_ListTweets();
+	$userid = Zend_Auth::getInstance()->getIdentity()->userid;
+	$userinfo = null;
+	
 	if(isset($_POST['message']) && isset($_POST['id']))
 	{
 		$message = $_POST['message'];
@@ -19,26 +25,47 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 		$tweetsList->addTweet($message, $replyid);
 	}
 	
+	//Om vi skickar med hur många som ska visas
 	if(isset($_POST['tweets']))
 	{
 		$tweetsShowing = $_POST['tweets'];
 	}
 	
-	$userObject = Zend_Auth::getInstance()->getIdentity();
+	
+	//Om det är myflow som anropar writetweets
+	if(isset($_POST['flow']))
+	{
+		$userinfo = $this->userinfo;
+		$flow = $this->tweetflow;
+	}
+	
+	if(isset($_POST['userid']))
+	{
+		$userid = $_POST['userid'];
+	}
+	
+	
 	
 	$tweetsList = new Application_Model_ListTweets();
-	$tweetsList = $tweetsList->listTweets($userObject->userid, $tweetsShowing);
+	
+	$tweetsList = $tweetsList->listTweets($userid, $tweetsShowing);
 	
 	$latestTweet = $tweetsList[0][0];
-	writeTweets($tweetsList[0], $this->allUsers, $tweetsShowing);
+	writeTweets($tweetsList[0], $this->allUsers, $tweetsShowing, $flow, $userinfo);
 }
 
 
-function writeTweets($tweetsList, $allUsers, $tweetsShowing)
+function writeTweets($tweets, $allUsers, $tweetsShowing, $flow, $info)
 {
 	$list = new Application_Model_ListTweets();
+	$tweetsList = $tweets;
+	$userinfo = Zend_Auth::getInstance()->getIdentity();
 	
-	$userObject = Zend_Auth::getInstance()->getIdentity();
+	//Kolla om det är ett flöde som ska ritas ut
+	if($flow != null)
+	{
+		$tweetsList = $flow;
+	}
 	
 	$i = 0;
 	for($i = 0; $i < $tweetsShowing && $i < count($tweetsList); $i++)
@@ -47,6 +74,9 @@ function writeTweets($tweetsList, $allUsers, $tweetsShowing)
 		
 		$tweet = $tweetsList[$i];
 		
+		if($info != null)
+			$userinfo = $info[$tweet->userid];
+		$userinfo = $allUsers[$tweet->userid];
 		echo '<div class="reply">';
 		
 		//Ta fram tweeten som det här är svar på om det finns någon
@@ -59,15 +89,13 @@ function writeTweets($tweetsList, $allUsers, $tweetsShowing)
 			tweetContent($user, $tweetAbove, $list);
 			echo '<div class="form2"></div>';
 			echo '</div>';
-			
 		}
 		
 		//Huvud-Tweet
 		echo '<div class="well tweetbox">';
-		tweetContent($userObject, $tweet, $list);
+		tweetContent($userinfo, $tweet, $list);
 		echo '<div class="form2"></div>';
 		echo '</div>';
-		
 		
 		
 		//Svar
@@ -82,7 +110,6 @@ function writeTweets($tweetsList, $allUsers, $tweetsShowing)
 				tweetContent($user, $reply, $list);
 				echo '<div class="form2"></div>';
 				echo '</div>';
-				
 			}
 		}
 		
@@ -99,37 +126,10 @@ function tweetContent($user, $tweet, $tweetsList)
 	echo '<div class="clickableTweet">';
 	echo '<img class="avatar" src="/Image/thumbnail?image='.substr($user->userimage, 1, strlen($user->userimage)).'" />';
 	echo '<strong>'.$user->firstname.' '.$user->lastname.'</strong> @'.$user->username.'<br />'.$tweet->message.'<br /><br /><br />';
-	echo '<div class="invisible">'.$tweet->tweetid.'</div>';
+	echo '<div id="id" class="invisible">'.$tweet->tweetid.'</div>';
 	$tweetsList->timeSince($tweet->timestamp);
 	echo '</div>';
 	echo '<div class="replylink"></div>';
 }
 
-
-
-/*function writeTweets($tweetsList, $tweetsShowing)
-{
-	$userObject = Zend_Auth::getInstance()->getIdentity();
-	
-	for($i = 0; $i < $tweetsShowing && $i < count($tweetsList); $i++)
-	{
-		$tweet = $tweetsList[$i];
-		
-		echo '<div class="reply">';
-		echo '<div class="well tweetbox">';
-		echo '<img class="avatar" src="/Image/thumbnail?image='.substr($userObject->imagepath, 1, strlen($userObject->imagepath)).'" />';
-		echo '<div class="mainTweet">';
-		echo '<strong>'.$userObject->firstname.' '.$userObject->lastname.'</strong> @'.$userObject->username.'<br />'.$tweet->message.'<br /><br /><br />';
-		
-		$timeSinceTweet = time() - $tweet->timestamp;
-		if($timeSinceTweet < 60)
-			echo $timeSinceTweet.' sekunder sedan';
-		else if($timeSinceTweet < 3600)
-			echo floor($timeSinceTweet / 60).' minuter sedan';
-		else if($timeSinceTweet < 86400)
-			echo floor($timeSinceTweet / 3600).' timmar sedan';
-		
-		echo '</div></div></div>';
-	}
-}*/
 ?>

@@ -18,7 +18,6 @@ class AuthenticationController extends Zend_Controller_Action
         //Om det redan finns en instance så har användaren redan loggat in
 		if(Zend_Auth::getInstance()->hasIdentity())
 		{
-			//Skicka användaren till index
 			$this->_redirect('/tweets/mytweets');
 		}
 	
@@ -80,20 +79,20 @@ class AuthenticationController extends Zend_Controller_Action
 
     public function logoutAction()
     {
-		//Typ rensa session
+		//Rensa session
         Zend_Auth::getInstance()->clearIdentity();
 		$this->_redirect('/index/index');
     }
 
     private function getAuthAdapter()
     {
-		//authAdapter vet hur den kopplar till databasen tack vara informationen man skriver i application.ini
+		//authAdapter vet hur den kopplar till databasen tack vare application.ini
 		$authAdapter = new Zend_Auth_Adapter_DbTable(Zend_Db_Table::getDefaultAdapter());
 		
 		//Tala om för adaptern vilken tabell den ska titta i
 		$authAdapter->setTableName('users')
-					->setIdentityColumn('username')		//vilken kolumn som identifierar det man letar efter
-					->setCredentialColumn('password');	//vilken kolumn som måste fyllas i rätt av användaren
+					->setIdentityColumn('username')
+					->setCredentialColumn('password');
 		
 		return $authAdapter;
     }

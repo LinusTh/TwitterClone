@@ -1,6 +1,8 @@
 ﻿$(document).ready(function()
 {
+	//Default antal tweets som syns
 	var tweetsShowing = 10;
+	
 	
 	if($('#following').text() == 'Följer')
 	{
@@ -57,35 +59,64 @@
 		}); 
 	});
 	
+	
 	//Visa fler tweets
 	$('#moretweets').click(function() {
-		
+		var pathname = window.location.pathname;
 		$('#loading').html('Laddar');
 		tweetsShowing += 10;
-		//$('#tweetsShowing').text(tweetsShowing);
 		
-		$.ajax(
+		if(pathname == '/tweets/myflow')
 		{
-			url: '/tweets/writetweets',
-			type: 'POST',
-			data: {tweets: tweetsShowing},
-			success: function(data)
+			$.ajax(
 			{
-				$('#innertweets').html(data);
-				$('#loading').html('');
-			}
-			
-		});
+				url: '/tweets/writetweets',
+				type: 'POST',
+				data: {tweets: tweetsShowing, flow: 1},
+				success: function(data)
+				{
+					$('#innertweets').html(data);
+					$('#loading').html('');
+				}
+				
+			});
+		}
+		else
+		{
+			var id = $('#userid').text();
+			$.ajax(
+			{
+				url: '/tweets/writetweets',
+				type: 'POST',
+				data: {tweets: tweetsShowing, userid: id},
+				success: function(data)
+				{
+					$('#innertweets').html(data);
+					$('#loading').html('');
+				}
+				
+			});
+		}
 	});
 	
 	
-	//Posta en tweet
+	//Knappen posta
 	$('#button').click(function()
 	{
 		tweetsShowing = 10;
 		$('#feedback').text('Laddar');
 	});
 	
+	//Posta en tweet med ajaxForm
+	$('#form').ajaxForm({
+		target: '#innertweets',
+		success: function clearTweet()
+		{
+			$('#tweetarea').attr('value', '');
+			$('#feedback').text('');
+			$('#button').attr('disabled', true);
+		}
+	});
 	
 	//Tweets blir highlightade när man drar musen över
 	$('.tweetbox').bind('mouseenter mouseleave', function()
@@ -109,10 +140,10 @@
 		$(this).parent().parent().find('.tweetsbelow').slideUp();
 	});
 	
-	//Klicka på svara
+	
+	//Klicka på länken "svara"
 	$('.replylink').click(function()
 	{
-		//$(this).parent().find('.form2').html('Hej');
 		$(this).parent().find('.form2').html('<br /><form id="replyform" action="#" method="POST"><input id="replyid" class="invisible" type="text" name="id" value="' + $(this).parent().find('.invisible').text() + '" /><textarea id="tweetarea" name="message"></textarea><br /><input id="replybutton" type="button" class="btn btn-primary" value="Posta" /><div id="feedback"></div></form>');
 		
 		return false;
@@ -122,22 +153,31 @@
 	//Posta svaret
 	$('body').on('click', '#replybutton', function()
 	{
-	
 		var tweettext = $(this).parent().parent().find('#tweetarea').val();
-		var tweetid = $(this).parent().parent().parent().find('.invisible').text()
-		//var tweetid = $(this).parent().parent().find.('#replyid').val();
+		var tweetid = $(this).parent().parent().parent().find('#id').text()
+		var userid = $('#userid').text();
+		$('#replybutton').css('display', 'none');
+		$('#replybutton').after('Laddar');
 		
-		$('#feedback').text('message: ' + tweettext + ' id: ' + tweetid);
-		
-		$.post('/tweets/writetweets', { message: tweettext, id: tweetid },
-			function(data)
-			{
-				$('#feedback').html('Vi har postat');
-				$('#innertweets').html(data);
-			}
-		);
+		if(userid != "")
+		{
+			$.post('/tweets/writetweets', { message: tweettext, id: tweetid, userid: userid },
+				function(data)
+				{
+					$('#innertweets').html(data);
+				}
+			);
+		}
+		else
+		{
+			$.post('/tweets/writetweets', { message: tweettext, id: tweetid, flow: 1 },
+				function(data)
+				{
+					$('#innertweets').html(data);
+				}
+			);
+		}
 	});
-	
 });
 
 

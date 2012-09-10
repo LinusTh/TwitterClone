@@ -13,9 +13,6 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 	
 	function _initViewHelpers()
 	{
-		//$view = new Zend_View();
-		
-		
 		$this->bootstrap('layout');
 		$layout = $this->getResource('layout');
 		$view = $layout->getView();

@@ -15,9 +15,12 @@ class ErrorController extends Zend_Controller_Action
         switch ($errors->type) {
             case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_ROUTE:
             case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_CONTROLLER:
+				
+				//Det är den här biten som är intressant
 				$pathinfo =  $this->_request->getPathInfo();
 				$username = preg_replace('"/"', '', $pathinfo);
 				$this->_redirect('/tweets/user?u='.$username);
+				////////////////////////////////////////
 				
             case Zend_Controller_Plugin_ErrorHandler::EXCEPTION_NO_ACTION:
                 // 404 error -- controller or action not found

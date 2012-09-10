@@ -1,4 +1,5 @@
-﻿
+﻿<!-- Author: Linus Thorelli -->
+
 <?php
 $userObject = Zend_Auth::getInstance()->getIdentity();
 
@@ -85,7 +86,7 @@ if(isset($_POST['email']))
 	<li><a href="/tweets/myflow">Mitt flöde</a></li>
 	<li class="active"><a href="/tweets/myprofile">Min profil</a></li>
 </ul>
-
+<div class="center">
 <form class="well registerbox" id="updateform" action="/tweets/myprofile" method="POST" enctype="multipart/form-data">
 	<div class="center">
 		<strong>Användarnamn:</strong> <?php echo $this->userinfo->username?> <br />
@@ -109,12 +110,14 @@ if(isset($_POST['email']))
 </form>
 
 
-<form class="well registerbox" id="passwordform" action="/tweets/myprofile" method="POST"">
-	<strong>Gammalt lösenord:</strong><br /><input type="password" name="password_old" maxlength="40" /><br />
-	<strong>Nytt Lösenord:</strong><br /><input type="password" name="password_new" maxlength="40" /> <br />
-	<br />
+<form class="well registerbox" id="passwordform" action="/tweets/myprofile" method="POST">
+	<div class="center">
+		<strong>Gammalt lösenord:</strong><br /><input type="password" name="password_old" maxlength="40" /><br />
+		<strong>Nytt Lösenord:</strong><br /><input type="password" name="password_new" maxlength="40" /> <br />
+		<br />
+	</div>
 	
 	<input class="btn btn-primary" type="submit" value="Ändra lösenord" /><br />
-	
 </form>
+</div>
 

@@ -1,4 +1,6 @@
-﻿#tweetspace
+﻿/* Author: Linus Thorelli */
+
+#tweetspace
 {
 	width: 50%;
 	margin-left: auto;
@@ -61,12 +63,14 @@
 {
 	width: 70%;
 	display: none;
+	background-color: #fffeed;
 }
 
 .tweetsbelow
 {
 	width: 70%;
 	display: none;
+	background-color: #fff8f3;
 }
 
 .avatar

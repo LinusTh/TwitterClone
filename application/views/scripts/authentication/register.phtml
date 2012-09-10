@@ -1,30 +1,4 @@
-﻿<h3>Registrera ny användare</h3>
-<br />
-<form class="well registerbox" id="registerform" action="/authentication/register" method="POST" enctype="multipart/form-data">
-	<div class="span4">
-		<strong>Obligatoriska uppgifter</strong><br /><br />
-		Användarnamn: <br /><input type="text" name="username" maxlength="32" <?php echo 'value="'.@$_POST['username'].'"' ?> /> <br />
-		Lösenord: <br /><input type="password" name="password" maxlength="40"  /> <br />
-		Upprepa lösenord: <br /><input type="password" name="repeatpassword" maxlength="40" /> <br />
-		Email: <br /><input type="email" name="email" maxlength="40" <?php echo 'value="'.@$_POST['email'].'"' ?> /> <br />
-		Förnamn: <br /><input type="text" name="firstname" maxlength="32" <?php echo 'value="'.@$_POST['firstname'].'"' ?> /> <br />
-		Efternamn: <br /><input type="text" name="lastname" maxlength="40" <?php echo 'value="'.@$_POST['lastname'].'"' ?> /> <br />
-	</div>
-	<div>
-		<strong>Frivilliga uppgifter</strong><br /><br />
-		Avatar: <br /><input type="file" name="avatar"><br />
-		Beskrivning: <br /><textarea name="description" maxlength="300" rows="5"><?php echo @$_POST['description'] ?></textarea> <br />
-		Plats: <br /><input type="text" name="location" maxlength="50" <?php echo 'value="'.@$_POST['location'].'"' ?> /> <br />
-		Website: <br /><input type="text" name="website" maxlength="50" <?php echo 'value="'.@$_POST['website'].'"' ?> /> <br />
-	</div>
-	<br /><br /><br /><br />
-	<div class="center">
-		<input class="btn btn-primary" type="submit" value="Registrera" /><br />
-	</div>
-</form>
-
-
-<?php
+﻿<?php
 if(isset($_POST['username']) && isset($_POST['password']) && isset($_POST['repeatpassword']) &&
    isset($_POST['email']) && isset($_POST['firstname']) && isset($_POST['lastname']))
 {
@@ -85,8 +59,7 @@ if(isset($_POST['username']) && isset($_POST['password']) && isset($_POST['repea
 				$accounts = new Application_Model_Accounts();
 				$accounts->registerUser($info);
 				
-				//$this->_redirect('/authentication/login');
-				echo 'Användare registrerad';
+				echo 'Användare registrerad <br />';
 			}
 		}
 	}
@@ -95,6 +68,36 @@ if(isset($_POST['username']) && isset($_POST['password']) && isset($_POST['repea
 		echo 'Alla obligatoriska fält måste fyllas i.';
 	}
 }
-
-
+else
+{
 ?>
+
+
+<div class="center">
+	<h2>Registrera ny användare</h2>
+	<br />
+	<form class="well registerbox" id="registerform" action="/authentication/register" method="POST" enctype="multipart/form-data">
+		<div class="span4">
+			<strong>Obligatoriska uppgifter</strong><br /><br />
+			Användarnamn: <br /><input type="text" name="username" maxlength="32" <?php echo 'value="'.@$_POST['username'].'"' ?> /> <br />
+			Lösenord: <br /><input type="password" name="password" maxlength="40"  /> <br />
+			Upprepa lösenord: <br /><input type="password" name="repeatpassword" maxlength="40" /> <br />
+			Email: <br /><input type="email" name="email" maxlength="40" <?php echo 'value="'.@$_POST['email'].'"' ?> /> <br />
+			Förnamn: <br /><input type="text" name="firstname" maxlength="32" <?php echo 'value="'.@$_POST['firstname'].'"' ?> /> <br />
+			Efternamn: <br /><input type="text" name="lastname" maxlength="40" <?php echo 'value="'.@$_POST['lastname'].'"' ?> /> <br />
+		</div>
+		<div>
+			<strong>Frivilliga uppgifter</strong><br /><br />
+			Avatar: <br /><input type="file" name="avatar"><br />
+			Beskrivning: <br /><textarea name="description" maxlength="300" rows="5"><?php echo @$_POST['description'] ?></textarea> <br />
+			Plats: <br /><input type="text" name="location" maxlength="50" <?php echo 'value="'.@$_POST['location'].'"' ?> /> <br />
+			Website: <br /><input type="text" name="website" maxlength="50" <?php echo 'value="'.@$_POST['website'].'"' ?> /> <br />
+		</div>
+		<br /><br /><br /><br />
+		<div class="center">
+			<input class="btn btn-primary" type="submit" value="Registrera" /><br />
+		</div>
+	</form>
+</div>
+
+<?php } ?>

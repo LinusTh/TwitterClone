@@ -18,7 +18,6 @@ class Application_Model_Accounts
 		$db->insert($data);
 		
 		//Ta fram det nyligen genererade id:t för användaren
-		//$selectUsers = $db->select();
 		$rows = $db->fetchAll('username = "'.$info['username'].'"');
 		$userid = $rows->current()->userid;
 		
