@@ -8,9 +8,10 @@ När jag kör projektet lokalt så använder jag apache-servern XAMPP
 
 2. Sätt upp en virtual host för projektmappen. Lägg till följande i filen C:\xampp\apache\conf\extra\httpd-vhost.conf:
 
+<code>
 NameVirtualHost *:80
 
-<VirtualHost *:80>
+< VirtualHost *:80 >
 	ServerName kviddevitter.local
 	DocumentRoot "sökväg till projektets public-mapp"
 	
@@ -22,7 +23,8 @@ NameVirtualHost *:80
 		Order allow,deny
 		Allow from all
 	</Directory>
-</VirtualHost>
+< /VirtualHost >
+</code>
 
 
 3. Importera localhost.sql i phpmyadmin
